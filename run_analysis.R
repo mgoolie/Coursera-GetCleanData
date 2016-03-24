@@ -1,6 +1,5 @@
-##Load dplyr and tidyr
+##Load dplyr
 library(dplyr)
-library(tidyr)
 
 ##Read in the variable names
 col_names <- read.delim("./UCI_HAR_Dataset/features.txt", header = F, sep= " ",stringsAsFactors = F)
@@ -9,8 +8,8 @@ col_names <- read.delim("./UCI_HAR_Dataset/features.txt", header = F, sep= " ",s
 desired_columns <- col_names[grep("(?:std)|(?:mean)",col_names$V2),]
 
 ##Build the data set of test subjects
-###Chain consists of readinging the subjects, reading acitvities and binding that column to the set,
-###reading the actvitities and joining them on the activity id, read the sample data and select the columns we want.
+###Chain consists of reading the subjects, reading activities and binding that column to the set,
+###reading the activities and joining them on the activity id, read the sample data and select the columns we want.
 data_set <- read.delim("./UCI_HAR_Dataset/test/subject_test.txt", header = F, col.names = c("Subject")) %>%
   cbind(read.delim("./UCI_HAR_Dataset/test/y_test.txt", header = F, col.names = c("ActivityIndex"))) %>% tbl_df() %>%
   inner_join(read.delim("./UCI_HAR_Dataset/Activity_labels.txt", header = F, sep= " " ,col.names =c("ActivityIndex", "Activity"))) %>%
@@ -33,6 +32,8 @@ summarized_output <- summarize_each(group_by(combined_set,Subject,Activity), fun
 colnames(summarized_output) <- gsub("mean","Mean",colnames(summarized_output))
 colnames(summarized_output) <- gsub("std","Std",colnames(summarized_output))
 colnames(summarized_output) <- gsub("\\.","",colnames(summarized_output))
+##Write the result file
+write.table(summarized_output, file="project-results.txt", row.names = F, append = F)
 
-#Clean up our temporary work
-rm(list=c("col_names","desired_columns","data_set","data_set2","combined_set"))
+#Clean up our environment
+rm(list=c("col_names","desired_columns","data_set","data_set2","combined_set","summarized_output"))
